@@ -1,0 +1,8 @@
+[create][file] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/test/trabalhos/ingest/*.zip: pwsh
+    tar
+
+[create update][file] /home/pedro/univ/mestrado/SPLN/grupo/trabalho3/test/trabalhos/extracted/*
+    run-tests
+
+[create update][file] /home/pedro/univ/mestrado/SPLN/grupo/trabalho3/test/trabalhos/reports-result/*
+
