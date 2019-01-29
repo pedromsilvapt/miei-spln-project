@@ -57,6 +57,9 @@ def parse_inotifile ( content ):
     watcher = None
 
     for line in content.split( '\n' ):
+        # Ignore empty lines and lines starting with a # as comments
+        if not line.strip() or line.strip().startswith( '#' ): continue
+
         if mode == MODE_ACTION:
             if not is_indented( line ):
                 mode = MODE_CONDITION
@@ -69,9 +72,6 @@ def parse_inotifile ( content ):
                 watcher.actions.append( unindent( line ) )
 
         if mode == MODE_CONDITION:
-            # Ignore empty lines and lines starting with a # as comments
-            if not line.strip() or line.strip().startswith( '#' ): continue
-
             watcher = parse_inotifile_watcher( line )
 
             watchers.append( watcher )

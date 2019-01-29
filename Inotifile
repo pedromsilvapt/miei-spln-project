@@ -7,4 +7,23 @@
 #[create update][file] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/test/trabalhos/reports-result/*
 
 [create update] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/*.py
-    echo $FILENAME
+    echo "Bash $FILENAME"
+
+    if [ "$FILENAME" = "__init__.py" ] 
+    then
+        echo "Dont't change that!"
+    fi
+
+[create update] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/*.py: python
+    print( "Python", FILENAME )
+
+    if FILENAME == '__init__.py':
+        print( 'Don\'t change that!' )
+
+
+[create update] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/*.py: pwsh
+    Write-Host "Powershell $FILENAME"
+
+    if ( $FILENAME -eq "__init__.py" ) {
+        Write-Host "Don't change that!"
+    }

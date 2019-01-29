@@ -391,8 +391,11 @@ def event_name ( event ):
         return "update"
     elif event == EventRemove:
         return "remove"
-    elif event == EventFile:
+    else: return None
+
+def type_name ( type ):
+    if type == EventFile:
         return "file"
-    elif event == EventFolder:
+    elif type == EventFolder:
         return "folder"
     else: return None
