@@ -5,6 +5,8 @@ executors = {
     'shell': Executor.ShellExecutor(),
     'python': Executor.PythonExecutor(),
     'pwsh': Executor.PowershellExecutor(),
+    'csharp': Executor.CSharpExecutor(),
+    'node': Executor.NodeExecutor()
 }
 
 watchers = Parser.file( './Inotifile' )

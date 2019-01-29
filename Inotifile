@@ -27,3 +27,19 @@
     if ( $FILENAME -eq "__init__.py" ) {
         Write-Host "Don't change that!"
     }
+
+[create update] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/*.py: csharp
+    Console.WriteLine( "C# " + FILENAME );
+
+    if ( FILENAME == "__init__.py" ) {
+        Console.WriteLine( "Don't change that!" );
+    }
+
+
+[create update] /home/pedro/Documents/univ/mestrado/SPLN/grupo/trabalho3/*.py: node
+    console.log( "NodeJS", FILENAME );
+
+    if ( FILENAME == "__init__.py" ) {
+        console.log( "Don't change that!" );
+    }
+

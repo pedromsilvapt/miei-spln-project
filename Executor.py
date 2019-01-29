@@ -5,7 +5,13 @@ import base64
 import sys
 import os
 
-class ShellExecutor:
+class Executor:
+    def escape ( self, string, quote = "'" ):
+        string = string.replace( "\\", "\\\\" ).replace( quote, f"\\{quote}" )
+
+        return f"{quote}{string}{quote}"
+
+class ShellExecutor(Executor):
     def inject ( self, variables ):
         return [ f'{key}={variables[key]}' for key in variables.keys() ]
 
@@ -14,25 +20,70 @@ class ShellExecutor:
         
         subprocess.run( [ '/bin/sh' ], input = command, stdout = sys.stdout, encoding = 'ascii' )
 
-class PythonExecutor:
+class PythonExecutor(Executor):
     def run ( self, actions, variables ):
         exec( '\n'.join( actions ), variables )
 
-class PowershellExecutor:
-    def escape ( self, string ):
-        string = string.replace( "\\", "\\\\" ).replace( "'", "\\'" )
-
-        return f"'{string}'"
-
+class PowershellExecutor(Executor):
     def inject ( self, variables ):
         return [ f'${key}={self.escape(variables[key])}' for key in variables.keys() ]
 
-    def run ( self, actions, variables ):
+    def run_script ( self, script ):
         command = base64.b64encode( 
-            '\n'.join( self.inject( variables ) + actions ).encode('UTF-16LE') 
+            script.encode('UTF-16LE') 
         ).decode( 'ascii' )
 
         os.system( f'pwsh-preview -ec {command}' )
+
+
+    def run ( self, actions, variables ):
+        self.run_script( '\n'.join( self.inject( variables ) + actions ) )
+
+class CSharpExecutor(PowershellExecutor):
+    def inject ( self, variables ):
+        quote = '"'
+
+        return [ f'String {key} = {self.escape(variables[key], quote)};' for key in variables.keys() ]
+
+    def run ( self, actions, variables ):
+        variables = self.inject( variables )
+
+        source = """
+        $assemblies=(
+            "System", "System.Console"
+        )
+
+        $source=@"
+        using System;
+        
+        #pragma warning disable CS0219
+        namespace INotify {
+            public static class App {
+                public static void Main(){
+                    """ + '\n'.join( variables ) + """
+                    """ + '\n'.join( actions ) + """
+                }
+            }
+        }
+"@
+
+        Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $source -Language CSharp -IgnoreWarnings
+
+        [INotify.App]::Main()
+        """
+
+        self.run_script( source )
+        
+
+class NodeExecutor(Executor):
+    def inject ( self, variables ):
+        return [ f'var {key}={self.escape(variables[key])}' for key in variables.keys() ]
+
+    def run ( self, actions, variables ):
+        command = '\n'.join( self.inject( variables ) + actions )
+        
+        subprocess.run( [ '/usr/bin/env', 'node' ], input = command, stdout = sys.stdout, encoding = 'ascii' )
+
         
 class Inotifile:
     def __init__ ( self, executors, watchers ):
