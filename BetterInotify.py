@@ -81,6 +81,9 @@ class InotifyWatcher:
         self.parent = parent
         self.recursive = recursive
         self.children = children or []
+    
+    def __repr__ ( self ):
+        return "<InotifyWatcher \n\tglob: %s \n\tid: %s \n\ttype: %s \n\tparent: %s\n\trecursive: %s\n\tchildren: %s\n>" % ( self.glob, self.id, self.type, self.parent, self.recursive, self.children )
 
 class BetterInotify:
     def __init__ ( self ):
@@ -95,9 +98,11 @@ class BetterInotify:
 
         self.inotify = inotify.adapters.Inotify()
 
+        self.debug = False
+
     def _debug ( self, *msg ):
-        pass
-        # print( *msg )
+        if self.debug:
+            print( *msg )
 
     def _create_watcher ( self, watcher ):
         watcher.id = self.counter
@@ -273,6 +278,7 @@ class BetterInotify:
 
         filepath = os.path.join( path, filename )
 
+        # print( root.glob, root.type == InotifyWatcherGlob, filepath, PurePath( filepath ).match( root.glob ) )
         if root.type == InotifyWatcherGlob and not PurePath( filepath ).match( root.glob ):
             return None
 
@@ -378,14 +384,15 @@ class BetterInotify:
                 # When the event is None, always emit it
                 yield event
 
-inotify = BetterInotify()
-# inotify.add_watch( "/home/pedro/*/*" )
-# inotify.add_watch( "/home/pedro/Documents/univ/mestrado/*/*" )
-# inotify.add_watch( "/home/pedro/Documents/univ/mestrado/FSD/**/*" )
-inotify.add_watch( "/home/pedro/Documents/univ/Fake/FSD/*.js" )
-# print( [ (watcher.id, watcher.type, watcher.glob) for watcher in inotify.watchers.values() ] )
-# inotify.remove_watch( 2 )
-# print( [ (watcher.id, watcher.type, watcher.glob) for watcher in inotify.watchers.values() ] )
-
-for event in inotify.listen():
-    if event != None: print( '>>>', event )
+def event_name ( event ):
+    if event ==  EventCreate:
+        return "create"
+    elif event == EventUpdate:
+        return "update"
+    elif event == EventRemove:
+        return "remove"
+    elif event == EventFile:
+        return "file"
+    elif event == EventFolder:
+        return "folder"
+    else: return None
