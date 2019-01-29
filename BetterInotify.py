@@ -86,7 +86,7 @@ class InotifyWatcher:
         return "<InotifyWatcher \n\tglob: %s \n\tid: %s \n\ttype: %s \n\tparent: %s\n\trecursive: %s\n\tchildren: %s\n>" % ( self.glob, self.id, self.type, self.parent, self.recursive, self.children )
 
 class BetterInotify:
-    def __init__ ( self ):
+    def __init__ ( self, logger = None ):
         # Dictionary matching a path/glob to a watcher instance
         self.watchers = dict()
         # Dictionary matching an id to a watcher instance
@@ -99,6 +99,8 @@ class BetterInotify:
         self.inotify = inotify.adapters.Inotify()
 
         self.debug = False
+
+        self.logger = logger
 
     def _debug ( self, *msg ):
         if self.debug:
@@ -311,6 +313,9 @@ class BetterInotify:
 
                 self._debug( type_names, path, filename, '\n' )
 
+                # Set a boolean flag to avoid logging the same event more than once
+                logged = False
+
                 for watcher in self.watchers[ path ]:
                     t_watcher, t_path, t_filename = watcher, path, filename
 
@@ -379,6 +384,11 @@ class BetterInotify:
                     event = self._transform( t_watcher, ( type_names, t_path, t_filename ) )
 
                     if event != None:
+                        if not logged and self.logger:
+                            self.logger.log( event_name( event[ 1 ] ), type_name( event[ 2 ] ), event[ 3 ] )
+                            
+                            logged = True
+
                         yield event
             else:
                 # When the event is None, always emit it

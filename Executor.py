@@ -1,4 +1,5 @@
 import BetterInotify
+import Logger
 import subprocess
 import base64
 import sys
@@ -51,7 +52,7 @@ class Inotifile:
         }
 
     def start ( self ):
-        inotify = BetterInotify.BetterInotify()
+        inotify = BetterInotify.BetterInotify( logger = Logger.Logger() )
 
         watchers_ids = dict()
 
@@ -70,6 +71,8 @@ class Inotifile:
                     watcher = watchers_ids[ id ]
 
                     if watcher.test( filepath, [ BetterInotify.event_name( action ), BetterInotify.type_name( type ) ] ):
+                        # self.logger.log( BetterInotify.event_name( action ), BetterInotify.type_name( type ), filepath )
+
                         variables = self.create_variables( event )
 
                         executor = self.executors[ watcher.executor or 'shell' ]
