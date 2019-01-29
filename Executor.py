@@ -63,6 +63,8 @@ class Inotifile:
 
                 watchers_ids[ id ] = watcher
 
+        if inotify.logger: inotify.logger.flush()
+
         for event in inotify.listen():
             if event != None: 
                 ( id, action, type, filepath ) = event
@@ -78,5 +80,7 @@ class Inotifile:
                         executor = self.executors[ watcher.executor or 'shell' ]
 
                         executor.run( watcher.actions, variables )
+            
+            if inotify.logger: inotify.logger.flush()
 
         

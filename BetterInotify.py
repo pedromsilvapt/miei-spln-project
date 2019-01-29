@@ -182,6 +182,9 @@ class BetterInotify:
         return watcher
 
     def add_watch ( self, glob ):
+        if self.logger and glob not in self.watchers:
+            self.logger.watch( glob )
+
         watcher = self._create_watcher( InotifyWatcher( glob ) )
 
         return watcher.id
@@ -385,8 +388,8 @@ class BetterInotify:
 
                     if event != None:
                         if not logged and self.logger:
-                            self.logger.log( event_name( event[ 1 ] ), type_name( event[ 2 ] ), event[ 3 ] )
-                            
+                            self.logger.event( event_name( event[ 1 ] ), type_name( event[ 2 ] ), event[ 3 ] )
+
                             logged = True
 
                         yield event

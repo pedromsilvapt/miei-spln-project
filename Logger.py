@@ -32,9 +32,23 @@ class Logger:
             return fgGray( type )
         else: return type
 
-    def log ( self, action, type, filepath ):
-        if self.file == sys.stderr or self.file == sys.stdout:
-            action = self.color_action( action.upper() )
-            type = self.color_type( type.upper() )
+    def isatty ( self ):
+        return ( self.file == sys.stderr or self.file == sys.stdout ) and self.file.isatty()
+
+    def write ( self, string ):
+        if not self.isatty():
+            string = stripAnsi( string )
+
+        self.file.write( string )
+
+    def flush ( self ):
+        self.file.flush()
+
+    def watch ( self, pattern ):
+        self.write( f'{fgYellow( "WATCH" )} {pattern}\n' )
+
+    def event ( self, action, type, filepath ):
+        action = self.color_action( action.upper() )
+        type = self.color_type( type.upper() )
         
-        self.file.write( f'{action} {type} {filepath}\n' )
+        self.write( f'{action} {type} {filepath}\n' )
