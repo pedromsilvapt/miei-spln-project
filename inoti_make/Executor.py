@@ -1,5 +1,5 @@
-import BetterInotify
-import Logger
+from . import BetterInotify
+from . import Logger
 import subprocess
 import base64
 import sys

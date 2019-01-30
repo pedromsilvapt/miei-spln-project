@@ -1,6 +1,6 @@
-import Executor
-import Parser
-import Logger
+#!/usr/bin/env python3
+
+from inoti_make import *
 import getopt
 import sys
 
