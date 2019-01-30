@@ -102,8 +102,8 @@ class Inotifile:
             'TYPE': BetterInotify.type_name( type )
         }
 
-    def start ( self ):
-        inotify = BetterInotify.BetterInotify( logger = Logger.Logger() )
+    def start ( self, logger = Logger.Logger() ):
+        inotify = BetterInotify.BetterInotify( logger = logger )
 
         watchers_ids = dict()
 

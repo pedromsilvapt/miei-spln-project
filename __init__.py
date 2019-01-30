@@ -1,5 +1,8 @@
 import Executor
 import Parser
+import Logger
+import getopt
+import sys
 
 executors = {
     'shell': Executor.ShellExecutor(),
@@ -9,10 +12,18 @@ executors = {
     'node': Executor.NodeExecutor()
 }
 
-watchers = Parser.file( './Inotifile' )
+options, args = getopt.getopt( sys.argv[1:], '', [ 'logger=' ] )
+options = dict( options )
+
+if len( args ) == 0:
+    watchers = Parser.file( './Inotifile' )
+else:
+    watchers = Parser.file( args[ 0 ] )
 
 try:
-    Executor.Inotifile( executors, watchers ).start()
+    logger = Logger.Logger( file = open( options[ '--logger' ], 'a' ) if '--logger' in options else sys.stderr )
+
+    Executor.Inotifile( executors, watchers ).start( logger = logger )
 except KeyboardInterrupt:
     print()
 
